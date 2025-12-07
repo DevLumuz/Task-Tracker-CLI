@@ -1,12 +1,12 @@
-# Task CLI
+# Task Tracker CLI
 
 Una herramienta de línea de comandos para gestionar tareas.
 
 ## Instalación
 
 ```bash
-git clone https://github.com/tu-usuario/task-cli.git
-cd task-cli
+git clone https://github.com/DevLumuz/Task-Tracker-CLI.git
+cd Task-Tracker-CLI
 go install ./cmd/task-cli
 ```
 
@@ -18,8 +18,8 @@ go install ./cmd/task-cli
 ## Uso
 
 ```bash
-task-cli add "Mi tarea"
-task-cli mark-in-progress 1
-task-cli mark-done 1
-task-cli list
+task-cli --add "Mi tarea"
+task-cli --mark-in-progress 1
+task-cli --mark-done 1
+task-cli --list
 ```
