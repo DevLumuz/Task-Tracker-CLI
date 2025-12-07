@@ -3,6 +3,8 @@
 Una herramienta de línea de comandos para gestionar tareas.
 
 🔗 **Repositorio:** [https://github.com/DevLumuz/Task-Tracker-CLI](https://github.com/DevLumuz/Task-Tracker-CLI)
+
+📚 **Basado en:** [Task Tracker - roadmap.sh](https://roadmap.sh/projects/task-tracker)
 ## Instalación
 
 ```bash
