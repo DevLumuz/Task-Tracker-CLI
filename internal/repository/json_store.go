@@ -2,11 +2,11 @@ package repository
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"math/rand"
 	"os"
 	"tasks/internal/core"
+	"time"
 )
 
 const jsonFilePath = "/home/daniel/Escritorio/GITHUB/task_tracker_cli/tasks.json"
@@ -28,8 +28,11 @@ func (t *TaskReporitory) Add(task_message string) error {
 		return err
 	}
 	newTasks := core.Task{
-		Id:      NewID(),
-		Message: task_message,
+		Id:        NewID(),
+		Message:   task_message,
+		Status:    "not-done",
+		CreatedAt: time.Now().Format(time.RFC1123),
+		UpdatedAt: time.Now().Format(time.RFC1123),
 	}
 	tasks = append(tasks, newTasks)
 	out, err := json.MarshalIndent(tasks, " ", " ")
@@ -74,6 +77,7 @@ func (t *TaskReporitory) Update(id, task_message string) error {
 	for _, task := range tasks {
 		if task.Id == id {
 			task.Message = task_message
+			task.UpdatedAt = time.Now().Format(time.RFC1123)
 			tasks_updated = append(tasks_updated, task)
 			continue
 		}
@@ -101,28 +105,45 @@ func (t *TaskReporitory) Read() ([]core.Task, error) {
 }
 
 // lee el archivo y retona el numero de tareas solicitado
-func (t *TaskReporitory) List(n int) ([]core.Task, error) {
-	// load data
-	tasks := make([]core.Task, n)
-	data, _ := os.ReadFile(jsonFilePath)
-	if err := json.Unmarshal(data, &tasks); err != nil && err.Error() != "unexpected end of JSON input" {
-		return []core.Task{}, err
-	}
-	return tasks[:n], nil
-}
-
-// lee el archivo y converte a structuras de go el json
-func (t *TaskReporitory) Get(id string) (core.Task, error) {
+func (t *TaskReporitory) List(status string) ([]core.Task, error) {
 	// load data
 	var tasks []core.Task
 	data, _ := os.ReadFile(jsonFilePath)
 	if err := json.Unmarshal(data, &tasks); err != nil && err.Error() != "unexpected end of JSON input" {
-		return core.Task{}, err
+		return []core.Task{}, err
 	}
+	var tasks_by_status []core.Task
+	for _, task := range tasks {
+		if task.Status == status {
+			tasks_by_status = append(tasks_by_status, task)
+		}
+
+	}
+	return tasks_by_status, nil
+}
+
+// Marca una tarea como hecha o en progreso
+func (t *TaskReporitory) Mark(id, status string) error {
+	tasks, err := t.Read()
+	if err != nil {
+		return err
+	}
+	var tasks_updated []core.Task
+
 	for _, task := range tasks {
 		if task.Id == id {
-			return task, nil
+			task.Status = status
+			task.UpdatedAt = time.Now().Format(time.RFC1123)
+			tasks_updated = append(tasks_updated, task)
+			continue
 		}
+		tasks_updated = append(tasks_updated, task)
+
 	}
-	return core.Task{}, errors.New("tarea no encontrada")
+	out, err := json.MarshalIndent(tasks_updated, " ", " ")
+	if err != nil {
+		return err
+	}
+	os.WriteFile("../../tasks.json", out, 0644)
+	return nil
 }

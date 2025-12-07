@@ -4,12 +4,15 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"tasks/internal/service"
 )
 
 func main() {
-	acctions := map[string]int{"--add": 1, "--remove": 2, "--update": 3, "--get": 4, "--list": 5}
+	acctions := map[string]int{
+		"--add": 1, "--remove": 2,
+		"--update": 3, "--mark-done": 4,
+		"--mark-in-progress": 4, "--list": 5,
+	}
 
 	if len(os.Args) > 2 {
 		// obtener el servicio
@@ -18,16 +21,19 @@ func main() {
 		arg2 := os.Args[2]
 		if exists && arg2 != "" {
 			switch action {
+			// add
 			case 1:
 				if err := s.Add(arg2); err != nil {
 					log.Fatal(err)
 				}
 				fmt.Println("La tarea se guardo exitosamente.")
+			// remove
 			case 2:
 				if err := s.Remove(arg2); err != nil {
 					log.Fatal("error eliminando tarea")
 				}
 				fmt.Printf("se elimino la tarea %s", arg2)
+			// update
 			case 3:
 				task_message := os.Args[3]
 				if task_message == "" {
@@ -37,21 +43,31 @@ func main() {
 					log.Fatal(err)
 				}
 				fmt.Println("actulizacion  realizada")
+			// mark-done or
 			case 4:
-				task, err := s.Get(arg2)
+				id := os.Args[2]
+				var err error
+				if os.Args[1] == "--mark-done" {
+					err = s.Mark(id, "done")
+				} else {
+					err = s.Mark(id, "in-progress")
+
+				}
 				if err != nil {
 					log.Fatal(err)
 				}
-				fmt.Printf("tarea encontrada  %v", task)
+				fmt.Println("se marco la tarea exitosamente")
+
+			// list
 			case 5:
-				n, err := strconv.Atoi(arg2)
-				if err != nil {
-					log.Fatal("error: el segundo argumento no es válido")
-					return
+				status := os.Args[2]
+				if status == "" {
+					fmt.Println("el filtro debe ser valido")
 				}
-				for _, v := range s.List(n) {
-					if v.Id != "" {
-						fmt.Printf("Tarae ID: %s, Mensaje: %s \n", v.Id, v.Message)
+
+				for _, task := range s.List(status) {
+					if task.Id != "" {
+						fmt.Printf("%+v \n", task)
 					}
 
 				}

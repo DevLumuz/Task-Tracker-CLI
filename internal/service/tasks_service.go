@@ -31,11 +31,11 @@ func (s *TaskService) Remove(id string) error {
 	return s.Repo.Remove(id)
 }
 
-func (s *TaskService) Get(id string) (core.Task, error) {
-	if id == "" {
-		return core.Task{}, errors.New("el id no es valido")
+func (s *TaskService) Mark(id, status string) error {
+	if id == "" || status == "" {
+		return errors.New("el id o el status no es valido")
 	}
-	return s.Repo.Get(id)
+	return s.Repo.Mark(id, status)
 }
 
 func (s *TaskService) Update(id, task_message string) error {
@@ -45,11 +45,11 @@ func (s *TaskService) Update(id, task_message string) error {
 	return s.Repo.Update(id, task_message)
 }
 
-func (s *TaskService) List(n int) []core.Task {
-	if n <= 0 {
+func (s *TaskService) List(status string) []core.Task {
+	if status == "" {
 		return []core.Task{}
 	}
-	tasks, err := s.Repo.List(n)
+	tasks, err := s.Repo.List(status)
 	if err != nil {
 		log.Fatal(err)
 		return []core.Task{}
